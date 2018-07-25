@@ -6,7 +6,8 @@ window.jQuery = function(nodeOrSelector){
   }
   window.$ = window.jQuery
 
-  window.jQuery.ajax = function({url, method, body, headers,success, fail}){
+  window.jQuery.ajax = function({url, method, body, headers}){
+    return new Promise(function(resolve, reject){
       let request = new XMLHttpRequest()
       request.open(method, url) // 配置request
       for(let key in headers) {
@@ -16,32 +17,27 @@ window.jQuery = function(nodeOrSelector){
       request.onreadystatechange = ()=>{
         if(request.readyState === 4){
           if(request.status >= 200 && request.status < 300){
-            success.call(undefined, request.responseText)
+            resolve.call(undefined, request.responseText)
           }else if(request.status >= 400){
-            fail.call(undefined, request)
+            reject.call(undefined, request)
           }
         }
       }
       request.send(body)
+    })
   }
-  
-function f1(responseText){}
 
-myButton.addEventListener('click', (e)=>{
+  myButton.addEventListener('click', (e)=>{
     window.jQuery.ajax({
       url: '/xxx',
       method: 'get',
       headers: {
         'content-type':'application/x-www-form-urlencoded',
         'xxx': '18'
-      },
-      success: (x)=>{
-        f1.call(undefined,x)
-      },
-      fail: (x)=>{
-        console.log(x)
-        console.log(x.status)
-        console.log(x.responseText)
       }
-    })
+    }).then(
+      (text)=>{console.log(text)},
+      (request)=>{console.log(request)}
+    )
+  
   })
